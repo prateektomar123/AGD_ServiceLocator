@@ -4,31 +4,39 @@ using UnityEngine.Tilemaps;
 using ServiceLocator.Utilities;
 using ServiceLocator.Player;
 using ServiceLocator.Events;
+using ServiceLocator.Sound;
 
 namespace ServiceLocator.Map
 {
-    public class MapService : GenericMonoSingleton<MapService>
+    public class MapService
     {
-        [SerializeField] private MapScriptableObject mapScriptableObject;
+        private MapScriptableObject mapScriptableObject;
 
         private Grid currentGrid;
         private Tilemap currentTileMap;
         private MapData currentMapData;
         private SpriteRenderer tileOverlay;
 
-        private void Start()
+
+        public MapService(MapScriptableObject mapScriptableObject)
         {
+            this.mapScriptableObject = mapScriptableObject;
+            
             SubscribeToEvents();
             tileOverlay = Object.Instantiate(mapScriptableObject.TileOverlay).GetComponent<SpriteRenderer>();
             ResetTileOverlay();
         }
+        private void Start()
+        {
+            
+        }
 
-        private void SubscribeToEvents() => EventService.Instance.OnMapSelected.AddListener(LoadMap);
+        private void SubscribeToEvents() => GameService.Instance.eventService.OnMapSelected.AddListener(LoadMap);
 
         private void LoadMap(int mapId)
         {
             currentMapData = mapScriptableObject.MapDatas.Find(mapData => mapData.MapID == mapId);
-            currentGrid = Instantiate(currentMapData.MapPrefab);
+            currentGrid = UnityEngine.Object.Instantiate(currentMapData.MapPrefab);
             currentTileMap = currentGrid.GetComponentInChildren<Tilemap>();
         }
 
